@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from .serializers import DiveLogSerializer
+from .models import DiveLog
+from rest_framework import generics
 
-# Create your views here.
+class DiveLogList(generics.ListCreateAPIView):
+    queryset = DiveLog.objects.all()
+    serializer_class = DiveLogSerializer
