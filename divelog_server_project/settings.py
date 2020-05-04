@@ -48,14 +48,14 @@ INSTALLED_APPS = [
 
     # third party app
     'rest_framework',
-    'corsheader',
+    'corsheaders',
 
     #local app
     'divelog_server.apps.DivelogServerConfig',
 ]
 
 MIDDLEWARE = [
-    'corsheaer.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -141,3 +141,16 @@ USE_TZ = True
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+STATICFILES_DIR = [
+    STATIC_DIR,
+]
+
+RESTFRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES' : [
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME' : timedelta(minutes=30)
+}
