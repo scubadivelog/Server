@@ -11,6 +11,14 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
+import environ
+
+env = environ.Env(
+    DEBUG = (bool, False)
+)
+
+environ.Env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,13 +28,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '_5-z(@efs7+h_$h4)c77w@o&-$1ivma+5n%r$&70#daxvmsiw='
+# SECRET_KEY = '_5-z(@efs7+h_$h4)c77w@o&-$1ivma+5n%r$&70#daxvmsiw='
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = env('SECRET_KEY')
 
-ALLOWED_HOSTS = []
+DEBUG= env.bool('DEBUG')
 
+ALLOWED_HOST = tuple(env.list('ALLOWED_HOST'))
 
 # Application definition
 
@@ -37,10 +45,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # third party app
+    'rest_framework',
+    'corsheaders',
+
+    #local app
+    'divelog_server.apps.DivelogServerConfig',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,14 +86,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'divelog_server_project.wsgi.application'
 
+CORS_ORIGIN_WHITELIST = tuple(env.list('CORS_ORIGIN_WHITELIST'))
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': env('DATABASE_PORT')
     }
 }
 
@@ -117,4 +139,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+STATICFILES_DIR = [
+    STATIC_DIR,
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES' : [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework.authentication.TokenAuthentication',
+    'rest_framework.authentication.BasicAuthentication',
+    ]
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME' : timedelta(minutes=30)
+}
