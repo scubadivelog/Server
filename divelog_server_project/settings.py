@@ -86,6 +86,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'divelog_server_project.wsgi.application'
 
+CORS_ORIGIN_WHITELIST = tuple(env.list('CORS_ORIGIN_WHITELIST'))
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -145,9 +146,15 @@ STATICFILES_DIR = [
     STATIC_DIR,
 ]
 
-RESTFRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES' : [
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES' : [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework.authentication.TokenAuthentication',
+    'rest_framework.authentication.BasicAuthentication',
     ]
 }
 
